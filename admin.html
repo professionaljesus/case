@@ -5,75 +5,94 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
 </head>
 <body>
-	<a href='/' class='btn btn-info'>Go back</a><div id="alert"></div>
-	<div id="printer"></div>
-	<!-- jQuery library -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<nav class="navbar navbar-inverse">
+		    <div class="container-fluid">
 
-	<!-- Latest compiled JavaScript -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-	<script type="text/javascript">
-		$( document ).ready(function() {
-			update();
+		<ul class="nav navbar-nav">
+			<li id="alert"></li>
+		</ul>
+		<ul class="nav navbar-nav navbar-right">
+			<li><a class='btn' href='/'>Go back  <span class="glyphicon glyphicon-arrow-right"></span></a></li>
+		</ul>
+	</div>
+	</nav>
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-2"></div>
+			<div class="col-lg-8" id="printer"></div>
+			<div class="col-lg-2"></div>
+		</div>
+	</div>
+
+</body>
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	$( document ).ready(function() {
+		update();
+	});
+
+	function update(){
+		$.getJSON( "/accounts", function( data ) {
+			var string = "<table class='table table-striped'><thead><tr><th>Employee id</th><th>username</th><th>Password</th><th>Admin status</th><th></th></tr></thead><tbody>"
+			for(i in data){
+				string += "<tr><td>" + data[i].employee_id +"</td><td>"+ data[i].username + "</td><td>HIDDEN</td><td>" + data[i].admin + "</td><td><input onclick='remove("+data[i].id+")' type='button' value='Delete' class='form-control btn btn-danger'></td></tr>";
+			}
+			string += "<tr><td><input type='text' autocomplete='off' class='form-control' id='employee_id'></td><td><input type='text' class='form-control' autocomplete='off' id='username'></td><td><input type='text' autocomplete='off' class='form-control' id='pwd'></td><td><input type='text' class='form-control' autocomplete='off' id='admin'></td><td><input onclick='add()' type='button' value='Add' class='form-control btn btn-success'></td></tr></tbody></table>";
+			$("#printer").html(string);
+		});
+	}
+
+
+
+
+	function remove(a) {
+		$.ajax({
+			url: '/accounts',
+			type: 'DELETE',
+			data: 'id=' + a,
+			success: function(result) {
+				console.log(result)
+				if(result == 1337){
+					$("#alert").attr("class","alert alert-danger");
+					$("#alert").html("<strong>Don't delete your own account please</strong>");
+				}
+				update();
+			}
 		});
 
-		function update(){
-			$.getJSON( "/accounts", function( data ) {
-				var string = "<table class='table table-striped'><thead><tr><th>Employee id</th><th>username</th><th>Password</th><th>Admin status</th><th></th></tr></thead><tbody>"
-				for(i in data){
-					string += "<tr><td>" + data[i].employee_id +"</td><td>"+ data[i].username + "</td><td>HIDDEN</td><td>" + data[i].admin + "</td><td><input onclick='remove("+data[i].id+")' type='button' value='Delete' class='form-control btn btn-danger'></td></tr>";
+	}
+	function add(){
+		var eid = $("#employee_id")[0].value;
+		var usr = $("#username")[0].value;
+		var a = $("#admin")[0].value;
+		var pwd = $("#pwd")[0].value;
+
+		$.ajax({
+			url: '/accounts',
+			type: 'POST',
+			data : 'employee_id=' + eid + '&username=' + usr +'&pwd=' + pwd +'&admin=' + a,
+			success: function(result) {
+				console.log(result);
+				update()
+				if(result == 1){
+					$("#alert").attr("class","alert alert-success");
+					$("#alert").html("<strong>Success!</strong> User created");
+				}else if(result == 1062){
+					$("#alert").attr("class","alert alert-danger");
+					$("#alert").html("<strong>User already exists</strong>");
 				}
-				string += "<tr><td><input type='text' class='form-control' id='employee_id'></td><td><input type='text' class='form-control' id='username'></td><td><input type='text' class='form-control' id='pwd'></td><td><input type='text' class='form-control' id='admin'></td><td><input onclick='add()' type='button' value='Add' class='form-control btn btn-success'></td></tr></tbody></table>";
-				$("#printer").html(string);
-			});
-		}
 
 
-
-
-		function remove(a) {
-			$.ajax({
-				url: '/accounts',
-				type: 'DELETE',
-				data: 'id=' + a,
-				success: function(result) {
-					console.log(result)
-					if(result == 1337){
-						$("#alert").attr("class","alert alert-danger");
-						$("#alert").html("<strong>Don't delete your own account please</strong>");
-					}
-					update();
-				}
-			});
-
-		}
-		function add(){
-			var eid = $("#employee_id")[0].value;
-			var usr = $("#username")[0].value;
-			var a = $("#admin")[0].value;
-			var pwd = $("#pwd")[0].value;
-
-			$.ajax({
-				url: '/accounts',
-				type: 'POST',
-				data : 'employee_id=' + eid + '&username=' + usr +'&pwd=' + pwd +'&admin=' + a,
-				success: function(result) {
-					console.log(result);
-					update()
-					if(result == 1){
-						$("#alert").attr("class","alert alert-success");
-						$("#alert").html("<strong>Success!</strong> User created");
-					}else if(result == 1062){
-						$("#alert").attr("class","alert alert-danger");
-						$("#alert").html("<strong>User already exists</strong>");
-					}
-
-
-				}
-			});
-		}
-	</script>
-</body>
+			}
+		});
+	}
+</script>
 </html>

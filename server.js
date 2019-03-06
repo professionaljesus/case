@@ -53,10 +53,9 @@ app.post('/carmodels', async function(req, res) {
 		try {
 			var txt = await query("SELECT admin FROM accounts WHERE accounts.username='" + req.session.username + "'");
 			if (txt[0].admin > 0) {
-
-				if (body.brand && body.model && body.price) {
+				if (body.brand && body.model && Number(body.price)) {
 					try {
-						var txt = await query("INSERT INTO carmodels (brand, model, price) VALUES ('" + escape(body.brand) + "','" + escape(body.model) + "'," + escape(body.price) + ")");
+						var txt = await query("INSERT INTO carmodels (brand, model, price) VALUES ('" + (body.brand) + "','" + (body.model) + "'," + (body.price) + ")");
 						body.id = txt.insertId;
 						res.end(JSON.stringify(body))
 					} catch (error) {
@@ -88,8 +87,8 @@ app.delete('/carmodels', async function(req, res) {
 			var txt = await query("SELECT admin FROM accounts WHERE accounts.username='" + req.session.username + "'");
 			if (txt[0].admin > 0) {
 				try {
-					var txt = await query("SELECT * FROM carmodels WHERE id = " + escape(body.id));
-					await query("DELETE FROM carmodels WHERE id = " + escape(body.id));
+					var txt = await query("SELECT * FROM carmodels WHERE id = " + (body.id));
+					await query("DELETE FROM carmodels WHERE id = " + (body.id));
 					res.end(JSON.stringify(txt));
 
 				} catch (error) {
@@ -116,7 +115,6 @@ app.get('/total_sales', async function(req, res) {
 		res.end(JSON.stringify(txt));
 	} catch (error) {
 		res.end(error.sqlMessage)
-
 		console.log(error)
 	}
 });
@@ -134,7 +132,6 @@ app.get('/employees', async function(req, res) {
 
 
 //Added backend
-
 app.post('/login', function(req, res) {
 	var username = req.body.username;
 	var password = req.body.password;
@@ -233,18 +230,16 @@ app.delete('/accounts', async function(req, res) {
 
 	if (req.session.loggedin) {
 		try {
-
 			var txt = await query("SELECT id,admin FROM accounts WHERE accounts.username='" + req.session.username + "'");
 			if (txt[0].id != body.id) {
 				if (txt[0].admin == 2) {
 					try {
-						var txt = await query("DELETE FROM accounts WHERE id = " + escape(body.id));
+						var txt = await query("DELETE FROM accounts WHERE id = " + (body.id));
 						console.log(txt)
 						res.end(JSON.stringify(txt));
 
 					} catch (error) {
 						res.end(error.sqlMessage)
-
 						console.log(error)
 					}
 				} else {
@@ -276,10 +271,10 @@ app.post('/accounts', async function(req, res) {
 				if (body.admin == "")
 					body.admin = 0;
 
-				if (body.username && body.pwd) {
+				if (body.username && body.pwd && Number(body.employee_id) && Number(body.admin)) {
 					try {
 						bcrypt.hash(body.pwd, saltRounds, async function(err, hash) {
-							var txt = await query("INSERT INTO accounts (employee_id, username, password, admin) VALUES ('" + escape(body.employee_id) + "','" + escape(body.username) + "','" + hash + "'," + escape(body.admin) + ")");
+							var txt = await query("INSERT INTO accounts (employee_id, username, password, admin) VALUES ('" + (body.employee_id) + "','" + (body.username) + "','" + hash + "'," + (body.admin) + ")");
 							res.end(JSON.stringify(txt.affectedRows));
 						});
 					} catch (error) {
