@@ -6,6 +6,7 @@
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
 
+
 </head>
 <body>
   <nav class="navbar navbar-inverse">
@@ -14,20 +15,20 @@
         <a class="navbar-brand" href="">Carshop</a>
       </div>
       <ul class="nav navbar-nav">
-        <li><a id="cars" href="#cars">cars</a></li>
-        <li><a id="employees" href="#employees">employees</a></li>
+        <li><a id="cars" href="#cars">Cars</a></li>
+        <li><a id="employees" href="#employees">Employees</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li id='uname'><a></a></li>
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user">
-            <span class="caret"></span></a>
+            <span class="caret"></span></span></a>
             <ul class="dropdown-menu">
               <div id="userinfo" class="col-lg-12">
                 <label for="usr">Username:</label>
-                <input type="text" class="form-control" id="usr" required>
+                <input type="text" class="form-control" id="usr" autocomplete='off'>
                 <label for="pwd">Password:</label>
-                <input type="password" class="form-control" id="pwd" required><input onclick="login()" type="button" value="Login" class="form-control btn btn-primary">
+                <input type="password" class="form-control" id="pwd" autocomplete='off'><input onclick="login()" type="button" value="Sign in" class="form-control btn btn-primary">
                 <div id='alert'></div> 
               </div>
 
@@ -36,7 +37,13 @@
         </ul>
       </div>
     </nav>
-    <div id="printer"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-2"></div>
+        <div class="col-lg-8" id="printer"></div>
+        <div class="col-lg-2" id="sales"></div>
+      </div>
+    </div>
 
   </body>
   <!-- jQuery library -->
@@ -53,37 +60,48 @@
       if(hash == "#cars")
         $("#cars").trigger("click");
       if(hash == "")
-        $("#printer").html("Admin login: <b>admin, pw</b>")
+        $("#printer").html("<div class='jumbotron'><h1>The Ultimate Carshopping Experience</h1></div>")
     });
 
     async function update(){
       var user = JSON.parse(await userinfo());
       var string = "";
       var uname = "";
+      var del = "";
+      var addcar = "";
+      var info = ""
+
       if(user != false){
-        user = user[0];
-        uname = "<a>" + user.username + "</a>";
-        string = "Username: <b>" + user.username + "</b><br>";
-        if(user.sales != null){
-          string += "Employee id: <b>"+user.employee_id +"</b><br>Total amount made: <b>" + user.sales + "</b>"
-          $(".delete").html("<input onclick='remove(this)' type='button' value='Delete' class='form-control btn btn-danger'>")
-          $("#addcar").html("<td><input type='text' class='form-control' id='brand'></td><td><input type='text' class='form-control' id='model'></td><td><input type='text' class='form-control' id='price'></td><td><input onclick='add()' type='button' value='Add' class='form-control btn btn-success'></td>")
+        console.log(user)
+        uname = "<a>" + user[0].username + "</a>";
+        string = "Username: <b>" + user[0].username + "</b><br>";
+        if(user[0].sales != null){
+          string += "Employee id: <b>"+user[0].id +"</b><br>Total sales: <b>" + user[0].sales + ":-</b>"
+          info = "<h4>" + user[0].name + "</h4><table><th>Cars Sold</th>"
+          if(user[0].sales > 0){
+            for(i in user){
+              if(user[i].brand != null){
+                info +="<tr><td>"+ user[i].brand + " " + user[i].model + " <b>" + user[i].price + ":-<td></tr>"
+              }
+            }
+          }
+          del = "<input onclick='remove(this)' type='button' value='Delete' class='form-control btn btn-danger'>";
+          addcar = "<td><input type='text' autocomplete='off' class='form-control' id='brand'></td><td><input type='text' autocomplete='off' class='form-control' id='model'></td><td><input type='text' autocomplete='off' class='form-control' id='price'></td><td><input onclick='add()' type='button' value='Add' class='form-control btn btn-success'></td>";
         }
-        if(user.admin == 2){
-          string += "<br><a href='/admin' class='btn btn-info'>Admin</a><br>";
+        if(user[0].admin == 2){
+          string += "<br><a href='/admin' class='form-control btn btn-info'>Admin page</a><br>";
         }
-        string += "<input onclick='logout()' type='button' value='logout' class='form-control btn btn-danger'>";
-        
+        string += "<input onclick='logout()' type='button' value='Sign out' class='form-control btn btn-danger'>";
         
       }else{
-        string = "<label for='usr'>Username:</label><input type='text' class='form-control' id='usr'><label for='pwd'>Password:</label><input type='password' class='form-control' id='pwd'><br><input onclick='login()' type='button' value='Login' class='form-control btn btn-primary'><div id='alert'></div>";
-
-        $(".delete").html("");
-        $("#addcar").html("")
+        string = "<label for='usr'>Username:</label><input type='text' autocomplete='off' class='form-control' id='usr'><label for='pwd'>Password:</label><input type='password' class='form-control' autocomplete='off' id='pwd'><br><input onclick='login()' type='button' value='Sign in' class='form-control btn btn-primary'><div id='alert'></div>";
       }
-
+      $(".delete").html(del);
+      $("#addcar").html(addcar);
       $("#userinfo").html(string);
       $("#uname").html(uname);
+      $("#sales").html(info)
+
 
     }
 
@@ -129,7 +147,7 @@
          string += "<tr><td>" + data[i].brand +"</td><td>"+ data[i].model + "</td><td>" + data[i].price + "</td><td id='"+data[i].id+"'' class='delete'></td></tr>";
        }
        string += "<tr id='addcar'></tr></tbody></table>";
-       
+
        $("#printer").html(string);
        update();
      });
