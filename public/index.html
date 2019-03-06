@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Carshop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
+</head>
+<body>
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="">Carshop</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li><a id="cars" href="#cars">cars</a></li>
+        <li><a id="employees" href="#employees">employees</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li id='uname'><a></a></li>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user">
+            <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <div id="userinfo" class="col-lg-12">
+                <label for="usr">Username:</label>
+                <input type="text" class="form-control" id="usr" required>
+                <label for="pwd">Password:</label>
+                <input type="password" class="form-control" id="pwd" required><input onclick="login()" type="button" value="Login" class="form-control btn btn-primary">
+                <div id='alert'></div> 
+              </div>
+
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div id="printer"></div>
+
+  </body>
+  <!-- jQuery library -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- Latest compiled JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <script type="text/javascript">
+    $( document ).ready(async function() {
+      update();
+      var hash = window.location.hash;
+      if(hash == "#employees")
+        $("#employees").trigger("click");
+      if(hash == "#cars")
+        $("#cars").trigger("click");
+      if(hash == "")
+        $("#printer").html("Admin login: <b>admin, pw</b>")
+    });
+
+    async function update(){
+      var user = JSON.parse(await userinfo());
+      var string = "";
+      var uname = "";
+      if(user != false){
+        user = user[0];
+        uname = "<a>" + user.username + "</a>";
+        string = "Username: <b>" + user.username + "</b><br>";
+        if(user.sales != null){
+          string += "Employee id: <b>"+user.employee_id +"</b><br>Total amount made: <b>" + user.sales + "</b>"
+          $(".delete").html("<input onclick='remove(this)' type='button' value='Delete' class='form-control btn btn-danger'>")
+          $("#addcar").html("<td><input type='text' class='form-control' id='brand'></td><td><input type='text' class='form-control' id='model'></td><td><input type='text' class='form-control' id='price'></td><td><input onclick='add()' type='button' value='Add' class='form-control btn btn-success'></td>")
+        }
+        if(user.admin == 2){
+          string += "<br><a href='/admin' class='btn btn-info'>Admin</a><br>";
+        }
+        string += "<input onclick='logout()' type='button' value='logout' class='form-control btn btn-danger'>";
+        
+        
+      }else{
+        string = "<label for='usr'>Username:</label><input type='text' class='form-control' id='usr'><label for='pwd'>Password:</label><input type='password' class='form-control' id='pwd'><br><input onclick='login()' type='button' value='Login' class='form-control btn btn-primary'><div id='alert'></div>";
+
+        $(".delete").html("");
+        $("#addcar").html("")
+      }
+
+      $("#userinfo").html(string);
+      $("#uname").html(uname);
+
+    }
+
+    function userinfo(){
+      return new Promise(function(resolve, reject) {
+        $.get( "/userinfo", function( data ) {
+          resolve(data);
+        });
+
+      });
+    }
+    function logout(){
+      $.get( "/logout", function( data ) {
+        console.log("logged out");
+        update();
+      });
+    }
+    
+    
+    function login(){
+      var user = $("#usr")[0].value;
+      var pass = $("#pwd")[0].value;
+      $.ajax({
+        url: '/login',
+        type: 'POST',
+        data : 'username=' + user + '&password=' + pass,
+        success: function(result) {
+          console.log(result);
+          update();
+
+        }
+      });
+    }
+
+    $( "#cars" ).click(function() {
+      $("li").removeClass("active");
+      $( "#cars" ).parent().addClass("active");
+
+      $.getJSON( "/carmodels", function( data ) {
+
+        var string = "<table class='table table-striped'><thead><tr><th>Brand</th><th>Model</th><th>Price</th><th></th></tr></thead><tbody>"
+        for(i in data){
+         string += "<tr><td>" + data[i].brand +"</td><td>"+ data[i].model + "</td><td>" + data[i].price + "</td><td id='"+data[i].id+"'' class='delete'></td></tr>";
+       }
+       string += "<tr id='addcar'></tr></tbody></table>";
+       
+       $("#printer").html(string);
+       update();
+     });
+    });
+
+    function add(){
+      var b = $("#brand")[0].value;
+      var m = $("#model")[0].value;
+
+      var p = $("#price")[0].value;
+      $.ajax({
+        url: '/carmodels',
+        type: 'POST',
+        data : 'brand=' + b + '&model=' + m + '&price=' + p,
+        success: function(result) {
+          console.log(result);
+          $("#cars").trigger("click");
+
+
+        }
+      });
+    }
+    function remove(a) {
+      var id = a.parentElement.id;
+
+      $.ajax({
+        url: '/carmodels',
+        type: 'DELETE',
+        data: 'id=' + id,
+        success: function(result) {
+          $("#cars").trigger("click");
+        }
+      });
+
+    }
+
+    $( "#employees" ).click(function() {
+      $("li").removeClass("active");
+
+      $( "#employees" ).parent().addClass("active");
+      $.getJSON( "/employees", function( data ) {
+
+
+        var string = "<table class='table table-striped'><thead><tr><th>Employee id</th><th>Name</th></tr></thead><tbody>"
+        for(i in data){
+         string += "<tr><td>" + data[i].id +"</td><td>"+ data[i].name + "</td></tr>";
+       }
+       string += "</tbody></table>";
+       $("#printer").html(string);
+     });
+    });
+  </script>
+  </html>
