@@ -8,6 +8,7 @@ path<br>
 bcrypt<br>
 
 <h3>Run</h3>
+mysql login: root<br>
 node createdatabase.js<br>
 ctrl + c<br>
 node server.js<br>
