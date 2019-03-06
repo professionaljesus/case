@@ -1,11 +1,11 @@
 # case
-Dependencies: \n
-var mysql = require('mysql');
-var express = require('express');
-var session = require('express-session');
-var bodyParser = require('body-parser');
-var path = require('path');
-var bcrypt = require('bcrypt');
-
-och
-BOOTSTRAP 4 CDN
+Dependencies: <br>
+var mysql = require('mysql');<br>
+var express = require('express');<br>
+var session = require('express-session');<br>
+var bodyParser = require('body-parser');<br>
+var path = require('path');<br>
+var bcrypt = require('bcrypt');<br>
+<br>
+och<br>
+BOOTSTRAP 4 CDN<br>
