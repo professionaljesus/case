@@ -13,5 +13,8 @@ node createdatabase.js<br>
 ctrl + c<br>
 node server.js<br>
 
-http://localhost:8080
+http://localhost:8080<br>
+<b>Admin login:</b><br>
+username: admin<br>
+password: pw
 
