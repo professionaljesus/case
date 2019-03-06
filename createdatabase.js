@@ -169,7 +169,7 @@ function tablesetc() {
     });
 
     bcrypt.hash('pw', saltRounds, function(err, hash) {
-      sql = "INSERT INTO accounts (employee_id, username, password, admin) VALUES (1,'admin','" + hash + "',2)";
+      sql = "INSERT INTO accounts (employee_id, username, password, admin) VALUES (4,'admin','" + hash + "',2)";
       con.query(sql, function(err, result) {
         if (err) console.log(err.sqlMessage);
         else console.log("Admin created");

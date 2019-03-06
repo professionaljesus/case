@@ -9,15 +9,14 @@
 </head>
 <body>
 	<nav class="navbar navbar-inverse">
-		    <div class="container-fluid">
-
-		<ul class="nav navbar-nav">
-			<li id="alert"></li>
-		</ul>
-		<ul class="nav navbar-nav navbar-right">
-			<li><a class='btn' href='/'>Go back  <span class="glyphicon glyphicon-arrow-right"></span></a></li>
-		</ul>
-	</div>
+		<div class="container-fluid">
+			<ul class="nav navbar-nav">
+				<li id="alert"></li>
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a class='btn' href='/'>Go back  <span class="glyphicon glyphicon-arrow-right"></span></a></li>
+			</ul>
+		</div>
 	</nav>
 	<div class="container">
 		<div class="row">
@@ -41,7 +40,7 @@
 
 	function update(){
 		$.getJSON( "/accounts", function( data ) {
-			var string = "<table class='table table-striped'><thead><tr><th>Employee id</th><th>username</th><th>Password</th><th>Admin status</th><th></th></tr></thead><tbody>"
+			var string = "<table class='table table-striped'><thead><tr><th>Employee id</th><th>Username</th><th>Password</th><th>Admin status (0-2)</th><th></th></tr></thead><tbody>"
 			for(i in data){
 				string += "<tr><td>" + data[i].employee_id +"</td><td>"+ data[i].username + "</td><td>HIDDEN</td><td>" + data[i].admin + "</td><td><input onclick='remove("+data[i].id+")' type='button' value='Delete' class='form-control btn btn-danger'></td></tr>";
 			}

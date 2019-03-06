@@ -167,14 +167,32 @@ app.get('/logout', function(req, res) {
 app.get('/userinfo', async function(req, res) {
 	if (req.session.loggedin) {
 		try {
-			var txt = await query("SELECT accounts.employee_id, username, admin, totalsales.sales FROM accounts LEFT JOIN totalsales ON accounts.employee_id = totalsales.employee_id WHERE accounts.username='" + req.session.username + "'");
-			res.end(JSON.stringify(txt));
+			var txt = await query("SELECT admin FROM accounts WHERE accounts.username='" + req.session.username + "'");
+			if (txt[0].admin > 0) {
+				try {
+					var txt = await query("SELECT employees.id, carmodels.model,accounts.admin, accounts.username, totalsales.sales, carmodels.brand, carmodels.price, employees.name FROM accounts LEFT JOIN employees ON accounts.employee_id = employees.id LEFT JOIN totalsales ON accounts.employee_id = totalsales.employee_id LEFT JOIN sales ON totalsales.employee_id = sales.employee_id LEFT JOIN carmodels ON sales.carmodel_id = carmodels.id WHERE accounts.username='" + req.session.username + "'");
+					console.log(txt)
+					res.end(JSON.stringify(txt));
+				} catch (err) {
+					res.end(err.sqlMessage);
+					console.log(err)
+				}
+			} else {
+				try {
+					var txt = await query("SELECT username, totalsales.sales FROM accounts LEFT JOIN totalsales ON accounts.employee_id = totalsales.employee_id WHERE accounts.username='" + req.session.username + "'");
+					console.log(txt)
+					res.end(JSON.stringify(txt));
+				} catch (err) {
+					res.end(err.sqlMessage);
+					console.log(err)
+				}
+			}
 		} catch (err) {
 			res.end(err.sqlMessage);
 			console.log(err)
 		}
 	} else {
-		res.end('false');
+		res.end("false")
 	}
 
 });
@@ -267,11 +285,17 @@ app.post('/accounts', async function(req, res) {
 			var txt = await query("SELECT id,admin FROM accounts WHERE accounts.username='" + req.session.username + "'");
 			if (txt[0].admin == 2) {
 				if (body.employee_id == "")
-					body.employee_id = 0;
+					body.employee_id = '0';
 				if (body.admin == "")
-					body.admin = 0;
+					body.admin = '0';
+				console.log(body.username)
+				console.log(body.pwd)
+				console.log(body.admin)
+				console.log(body.employee_id)
 
-				if (body.username && body.pwd && Number(body.employee_id) && Number(body.admin)) {
+
+
+				if (body.username && body.pwd && (Number(body.employee_id) || Number(body.employee_id) == 0) && (Number(body.admin) || Number(body.admin) == 0)) {
 					try {
 						bcrypt.hash(body.pwd, saltRounds, async function(err, hash) {
 							var txt = await query("INSERT INTO accounts (employee_id, username, password, admin) VALUES ('" + (body.employee_id) + "','" + (body.username) + "','" + hash + "'," + (body.admin) + ")");
