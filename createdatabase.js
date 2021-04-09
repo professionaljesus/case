@@ -1,4 +1,5 @@
-const mysql = require('mysql')
+//const mysql = require('mysql')
+const sqlite3 = require('sqlite3')
 const bcrypt = require('bcrypt')
 const saltRounds = 10;
 
@@ -6,7 +7,7 @@ var options = {
   user: 'root',
   password: ''
 }
-var con = mysql.createConnection(options);
+var con = new sqlite3.Database('database.db')//mysql.createConnection(options);
 
 const data = require('./data.json')
 
